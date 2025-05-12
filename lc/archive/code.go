@@ -404,6 +404,7 @@ func generateParenthesis(n int) []string {
 	generateParenthesis_backtrack("", 0, 0, n, &result)
 	return result
 }
+
 func generateParenthesis_backtrack(s string, open, close, max int, result *[]string) {
 	if len(s) == max*2 {
 		*result = append(*result, s)
@@ -670,4 +671,217 @@ func searchInsert(nums []int, target int) int {
 		}
 	}
 	return left
+}
+
+func max(v1, v2 int) int {
+	if v1 > v2 {
+		return v1
+	}
+	return v2
+}
+
+// https://leetcode.cn/problems/longest-substring-without-repeating-characters/description/
+func LengthOfLongestSubstring(s string) int {
+	length := len(s)
+	if length == 0 {
+		return 0
+	}
+	left := 0
+	m := 0
+
+	set := make(map[byte]int)
+	for cursor := 0; cursor < length; cursor++ {
+		b := s[cursor]
+		if idx, found := set[b]; found && left <= idx {
+			left = idx + 1
+		}
+		m = max(cursor-left+1, m)
+		set[b] = cursor
+	}
+	m = max(length-left, m)
+	return m
+}
+
+// https://leetcode.cn/problems/longest-palindromic-substring/
+func longestPalindrome(s string) string {
+	// another O(n) method: https://cp-algorithms.com/string/manacher.html
+	if len(s) < 2 {
+		return s
+	}
+
+	// indices of the best window so far
+	start, end := 0, 0
+
+	// helper that grows outward while s[l]==s[r]
+	expand := func(l, r int) (int, int) {
+		for l >= 0 && r < len(s) && s[l] == s[r] {
+			l--
+			r++
+		}
+		return l + 1, r - 1 // bounds after the last match
+	}
+
+	for i := 0; i < len(s); i++ {
+		// odd‑length palindrome (center on one rune)
+		l1, r1 := expand(i, i)
+		// even‑length palindrome (center between two runes)
+		l2, r2 := expand(i, i+1)
+
+		if r1-l1 > end-start {
+			start, end = l1, r1
+		}
+		if r2-l2 > end-start {
+			start, end = l2, r2
+		}
+	}
+
+	return s[start : end+1]
+}
+
+// https://leetcode.cn/problems/regular-expression-matching/
+func isMatch(s string, p string) bool {
+	// todo: learn dp
+	m, n := len(s), len(p)
+
+	// dp[i][j] == does s[i:] match p[j:] ?
+	dp := make([][]bool, m+1)
+	for i := range dp {
+		dp[i] = make([]bool, n+1)
+	}
+	dp[m][n] = true // two empty strings match
+
+	// iterate backwards so sub‑problems to the right / below are ready
+	for i := m; i >= 0; i-- {
+		for j := n - 1; j >= 0; j-- {
+			// firstCharMatch: s[i] exists && (equal or pattern has '.')
+			firstCharMatch := i < m && (p[j] == s[i] || p[j] == '.')
+
+			if j+1 < n && p[j+1] == '*' {
+				// Case 1: '*' uses **zero** of the preceding element → skip "X*"
+				// Case 2: '*' uses ≥1  → only if first char matches, stay at j
+				dp[i][j] = dp[i][j+2] || (firstCharMatch && dp[i+1][j])
+			} else {
+				// simple char / '.' : both advance one step
+				dp[i][j] = firstCharMatch && dp[i+1][j+1]
+			}
+		}
+	}
+	return dp[0][0]
+}
+
+// https://leetcode.cn/problems/group-anagrams/
+func groupAnagrams(strs []string) [][]string {
+	m := map[[26]int][]string{}
+	for _, str := range strs {
+		counter := [26]int{}
+		for _, c := range str {
+			counter[c-'a']++
+		}
+		m[counter] = append(m[counter], str)
+	}
+	res := [][]string{}
+	for _, v := range m {
+		res = append(res, v)
+	}
+	return res
+}
+
+// https://leetcode.cn/problems/single-number/
+func singleNumber(nums []int) int {
+	a := 0
+	for _, b := range nums {
+		a ^= b
+	}
+	return a
+}
+
+// https://leetcode.cn/problems/add-binary/
+func addBinary(a string, b string) string {
+	la, lb := len(a), len(b)
+	var dc byte = 0
+	res := ""
+	for {
+		la--
+		lb--
+		var da, db byte = 0, 0
+		co := false
+		if la >= 0 {
+			da = a[la] - '0'
+			co = true
+		}
+		if lb >= 0 {
+			db = b[lb] - '0'
+			co = true
+		}
+		c := da + db + dc
+		if c == 3 {
+			dc = 1
+			res = "1" + res
+		} else if c == 2 {
+			res = "0" + res
+			dc = 1
+		} else if c == 1 {
+			res = "1" + res
+			dc = 0
+		} else {
+			if co {
+				res = "0" + res
+			}
+		}
+		if !co {
+			return res
+		}
+	}
+}
+
+// https://leetcode.cn/problems/plus-one/
+func plusOne(digits []int) []int {
+	b := true
+	for r := len(digits) - 1; r >= 0; r-- {
+		if digits[r] == 9 {
+			digits[r] = 0
+			continue
+		} else {
+			digits[r]++
+			b = false
+			break
+		}
+	}
+	if b {
+		return append([]int{1}, digits...)
+	}
+	return digits
+}
+
+// https://leetcode.cn/problems/sqrtx/
+func mySqrt(x int) int {
+	var table = [65536]int{}
+	for i := 0; i < 65536; i++ {
+		table[i] = i * i
+	}
+	l, r := 0, len(table)-1
+	for {
+		if l == r || l == r-1 {
+			return l
+		}
+		m := (l + r) / 2
+		v := table[m]
+		if v > x {
+			r = m
+		} else if v < x {
+			l = m
+		} else {
+			return m
+		}
+	}
+}
+
+// https://leetcode.cn/problems/valid-perfect-square/
+func isPerfectSquare(num int) bool {
+	var table = map[int]struct{}{}
+	for i := 0; i < 65536; i++ {
+		table[i*i] = struct{}{}
+	}
+	_, found := table[num]
+	return found
 }

@@ -2,56 +2,6 @@ package lc
 
 import "fmt"
 
-func max(v1, v2 int) int {
-	if v1 > v2 {
-		return v1
-	}
-	return v2
-}
-
-// https://leetcode.cn/problems/longest-substring-without-repeating-characters/description/
-func LengthOfLongestSubstring(s string) int {
-	length := len(s)
-	if length == 0 {
-		return 0
-	}
-	left := 0
-	m := 0
-
-	set := make(map[byte]int)
-	for cursor := 0; cursor < length; cursor++ {
-		b := s[cursor]
-		if idx, found := set[b]; found && left <= idx {
-			left = idx + 1
-		}
-		m = max(cursor-left+1, m)
-		set[b] = cursor
-	}
-	m = max(length-left, m)
-	return m
-}
-
-/*
-给你一个字符串 s，找到 s 中最长的回文子串
-
-示例 1：
-输入：s = "babad"
-输出："bab"
-解释："aba" 同样是符合题意的答案。
-
-示例 2：
-输入：s = "cbbd"
-输出："bb"
-
-提示：
-1 <= s.length <= 1000
-s 仅由数字和英文字母组成
-*/
-// https://leetcode.cn/problems/longest-palindromic-substring/
-func longestPalindrome(s string) string {
-	return ""
-}
-
 /*
 给你一个字符串 s 和一个字符规律 p，请你来实现一个支持 '.' 和 '*' 的正则表达式匹配。
 '.' 匹配任意单个字符
@@ -80,10 +30,6 @@ s 只包含从 a-z 的小写字母。
 p 只包含从 a-z 的小写字母，以及字符 . 和 *。
 保证每次出现字符 * 时，前面都匹配到有效的字符
 */
-// https://leetcode.cn/problems/regular-expression-matching/
-func isMatch(s string, p string) bool {
-	return false
-}
 
 // https://leetcode.cn/problems/substring-with-concatenation-of-all-words/
 func findSubstring(s string, words []string) []int {
