@@ -10,6 +10,7 @@ func threeSum(nums []int) [][]int {
 	return kSum(nums, 0, 3, 0)
 }
 
+// NOTE: hard to learn
 // kSum returns all k-tuples (ascending) that sum to target.
 func kSum(nums []int, target, k, start int) [][]int {
 	n := len(nums)
