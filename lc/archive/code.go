@@ -1,5 +1,10 @@
 package archive
 
+import (
+	"fmt"
+	"strings"
+)
+
 // https://leetcode.cn/problems/two-sum/description/
 func twoSum(nums []int, target int) []int {
 	m := make(map[int]int)
@@ -884,4 +889,125 @@ func isPerfectSquare(num int) bool {
 	}
 	_, found := table[num]
 	return found
+}
+
+// https://leetcode.cn/problems/text-justification
+func fullJustify(words []string, maxWidth int) []string {
+	rearrangeWords := [][]string{}
+	currentWordsLen := 0
+	currentLine := []string{}
+	for _, w := range words {
+		newLen := currentWordsLen + len(w)
+		if newLen > maxWidth {
+			currentWordsLen = len(w) + 1
+			rearrangeWords = append(rearrangeWords, currentLine)
+			currentLine = []string{w}
+		} else {
+			currentWordsLen = currentWordsLen + len(w) + 1
+			currentLine = append(currentLine, w)
+
+		}
+	}
+	if len(currentLine) > 0 {
+		rearrangeWords = append(rearrangeWords, currentLine)
+	}
+	result := []string{}
+	for i := range rearrangeWords {
+		line := rearrangeWords[i]
+		if i == len(rearrangeWords)-1 {
+			finalLine := strings.Join(line, " ")
+			finalLen := len(finalLine)
+			for finalLen < maxWidth {
+				finalLine = finalLine + " "
+				finalLen++
+			}
+			result = append(result, finalLine)
+			break
+		}
+		l := 0
+		for _, w := range line {
+			l += len(w)
+		}
+		for l < maxWidth {
+			for i := range line {
+				if l == maxWidth {
+					break
+				}
+				if i < len(line)-1 || len(line) == 1 {
+					line[i] = line[i] + " "
+					l++
+				}
+			}
+		}
+		result = append(result, strings.Join(line, ""))
+	}
+	return result
+}
+
+// https://leetcode.cn/problems/length-of-last-word/
+func lengthOfLastWord(s string) int {
+	l := len(s)
+	rightIdx := l - 1
+	for ; rightIdx >= 0; rightIdx-- {
+		if s[rightIdx] != ' ' {
+			break
+		}
+	}
+	leftIdx := rightIdx - 1
+	for ; leftIdx >= 0; leftIdx-- {
+		if s[leftIdx] == ' ' {
+			break
+		}
+	}
+
+	return rightIdx - leftIdx
+
+}
+
+// https://leetcode.cn/problems/permutation-sequence/
+func getPermutation(n int, k int) string {
+	table := [10]int{
+		1,
+		1,
+		2,
+		6,
+		24,
+		120,
+		720,
+		5040,
+		40320,
+		362880,
+	}
+
+	nums := make([]int, n+1)
+	for i := 1; i <= n; i++ {
+		nums[i] = i
+	}
+
+	findNonZero := func(nums []int, n int) int {
+		for _, v := range nums {
+			if v != 0 {
+				n--
+				if n == 0 {
+					return v
+				}
+			}
+		}
+		return 0
+	}
+
+	res := ""
+	for i := n; i >= 1; i-- {
+		countPerGroup := table[i-1]
+		group := ((k - 1) / countPerGroup)
+		n := findNonZero(nums, group+1)
+		res += fmt.Sprintf("%d", n)
+		nums[n] = 0
+		skip := group * countPerGroup
+		if k > skip {
+			k -= skip
+		}
+	}
+
+	return res
 }
