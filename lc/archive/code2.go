@@ -119,3 +119,111 @@ func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
 	}
 	return 0
 }
+
+// https://leetcode.cn/problems/next-permutation/
+func nextPermutation(nums []int) {
+	l := len(nums)
+	if l < 2 {
+		return
+	}
+	p := l - 2
+	for p >= 0 && nums[p+1] <= nums[p] {
+		p--
+	}
+	if p >= 0 {
+		successor := l - 1
+		for nums[successor] <= nums[p] {
+			successor--
+		}
+		nums[p], nums[successor] = nums[successor], nums[p]
+	}
+	for from, to := p+1, l-1; from < to; {
+		nums[from], nums[to] = nums[to], nums[from]
+		from++
+		to--
+	}
+}
+
+// https://leetcode.cn/problems/3sum-closest/
+func threeSumClosest(nums []int, target int) int {
+	l := len(nums)
+	if l < 3 {
+		return target
+	}
+	distance := func(a, b int) int {
+		d := a - b
+		if d < 0 {
+			return -d
+		}
+		return d
+	}
+	sort.Ints(nums)
+	closestSum := nums[0] + nums[1] + nums[2]
+	for i := 0; i <= l-2; i++ {
+		left := i + 1
+		right := l - 1
+		for left < right {
+			currentSum := nums[i] + nums[left] + nums[right]
+			if distance(currentSum, target) < distance(closestSum, target) {
+				closestSum = currentSum
+			}
+			v := currentSum - target
+			if v > 0 {
+				right--
+			} else if v < 0 {
+				left++
+			} else {
+				return target
+			}
+		}
+	}
+	return closestSum
+}
+
+// https://leetcode.cn/problems/4sum/
+func fourSum(nums []int, target int) [][]int {
+	l := len(nums)
+	if l < 4 {
+		return nil
+	}
+	sort.Ints(nums)
+	result := [][]int{}
+	for i := 0; i < l-3; i++ {
+		if i > 0 && nums[i] == nums[i-1] {
+			continue
+		}
+		for j := i + 1; j < l-2; j++ {
+			if j > i+1 && nums[j] == nums[j-1] {
+				continue
+			}
+
+			left := j + 1
+			right := l - 1
+			for left < right {
+				currentSum := nums[i] + nums[j] + nums[left] + nums[right]
+				if currentSum == target {
+					result = append(result, []int{nums[i], nums[j], nums[left], nums[right]})
+					left++
+					right--
+					for left < right && nums[left] == nums[left-1] {
+						left++
+					}
+					for left < right && nums[right] == nums[right+1] {
+						right--
+					}
+				} else if currentSum > target {
+					right--
+					for left < right && nums[right] == nums[right+1] {
+						right--
+					}
+				} else {
+					left++
+					for left < right && nums[left] == nums[left-1] {
+						left++
+					}
+				}
+			}
+		}
+	}
+	return result
+}
